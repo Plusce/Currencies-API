@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using Autofac;
 using Currencies.Api.Infrastructure.DependencyInjection;
+using Currencies.Api.Infrastructure.Middleware;
 using Currencies.App.UseCases.GetExchangeRate;
 using Currencies.DataAccess;
 using MediatR;
@@ -60,10 +61,12 @@ namespace Currencies.Api
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
 
             app.UseHttpsRedirection();
 

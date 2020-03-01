@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Currencies.Api.Infrastructure.Exceptions;
+using Currencies.Api.Infrastructure.ErrorHandling;
 
 namespace Currencies.Api.Infrastructure.Behaviors
 {
@@ -53,12 +53,12 @@ namespace Currencies.Api.Infrastructure.Behaviors
 
         private static void ThrowValidationException(IEnumerable<ValidationFailure> failures)
         {
-            var exception = new Exceptions.ValidationException();
-            exception.ValidationErrors.AddRange(failures.Select(f =>
+            var validationErrors = failures.Select(f =>
             {
-                return new ValidationError(f.ErrorCode, f.ErrorMessage);
-            }));
+                return new ValidationError(f.PropertyName, f.ErrorMessage);
+            });
 
+            var exception = new ErrorHandling.ValidationException(validationErrors);
             throw exception;
         }
     }
