@@ -41,7 +41,7 @@ namespace Currencies.Api.Infrastructure.ErrorHandling
 
             ApiError MapValidationErrorToApiError(ValidationError validationError)
             {
-                var arguments = validationError != null
+                var arguments = !string.IsNullOrWhiteSpace(validationError.FieldName)
                     ? new Dictionary<string, string> { { "FieldName: ", validationError.FieldName } }
                     : null;
 
