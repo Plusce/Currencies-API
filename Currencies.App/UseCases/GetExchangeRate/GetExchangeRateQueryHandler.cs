@@ -22,7 +22,7 @@ namespace Currencies.App.UseCases.GetExchangeRate
 
         public async Task<GetExchangeRateModel> Handle(GetExchangeRateQuery request, CancellationToken cancellationToken)
         {
-            await FillGapsInMissingDayExchangeRates(GetDatesBetweenStartAndEndDateDividedByDay());
+            await FillGapsInMissingDailyExchangeRates(GetDatesBetweenStartAndEndDateDividedByDay());
 
             var getExchangeRateModel = new GetExchangeRateModel();
 
@@ -48,17 +48,16 @@ namespace Currencies.App.UseCases.GetExchangeRate
                 return datesBetweenStartAndEndDateDividedByDay;
             }
 
-            async Task FillGapsInMissingDayExchangeRates(List<DateTime> datesBetween)
+            async Task FillGapsInMissingDailyExchangeRates(List<DateTime> datesBetween)
             {
-                var gapDaysCollection = await GetGapDaysCollection(datesBetween);
-                var gapPeriods = GetGapPeriods(gapDaysCollection);
-                var getNbpExchangeRateQueries = ConvertGapPeriodsToNbpExchangeRateQueries(gapPeriods);
+                var gapDays = await GetGapDays(datesBetween);
+                var getNbpExchangeRateDailyQueries = ConvertGapPeriodsToNbpExchangeRateQueries(gapDays);
 
-                var nbpExchangeRateModel = await NbpClient.GetNbpExchangeRateModels(getNbpExchangeRateQueries, cancellationToken);
+                var nbpExchangeRateModel = await NbpClient.GetNbpExchangeRateModels(getNbpExchangeRateDailyQueries, cancellationToken);
                 await SaveNbpExchangeRateModels(nbpExchangeRateModel);
             }
 
-            async Task<List<DateTime>> GetGapDaysCollection(List<DateTime> datesBetween)
+            async Task<List<DateTime>> GetGapDays(List<DateTime> datesBetween)
             {
                 var gapDaysCollection = new List<DateTime>();
                 for (int i = 0; i < datesBetween.Count; i++)
@@ -73,76 +72,25 @@ namespace Currencies.App.UseCases.GetExchangeRate
                 return gapDaysCollection;
             }
 
-            List<(DateTime startDate, DateTime endDate)> GetGapPeriods(List<DateTime> gapDaysCollection)
+            IEnumerable<GetNbpExchangeRateDailyQuery> ConvertGapPeriodsToNbpExchangeRateQueries
+            (List<DateTime> gapDays)
             {
-                var gapPeriods = new List<(DateTime startDate, DateTime endDate)>();
-
-                var gapDays = 0;
-                DateTime? startDateForProvidedInterval = null;
-
-                for (int i = 0; i < gapDaysCollection.Count - 1; i++)
+                if (gapDays != null)
                 {
-                    if (gapDaysCollection[i].AddDays(1).Equals(gapDaysCollection[i + 1]))
-                    {
-                        if (startDateForProvidedInterval == null)
-                        {
-                            startDateForProvidedInterval = gapDaysCollection[i];
-                        }
-                        gapDays++;
-                    }
-                    else
-                    {
-                        if (startDateForProvidedInterval == null)
-                        {
-                            continue;
-                        }
-
-                        AddElementToGapsPeriodCollection(startDateForProvidedInterval, gapDays);
-                    }
-                }
-                if(gapDays > 0)
-                {
-                    AddElementToGapsPeriodCollection(startDateForProvidedInterval, gapDays);
-                }
-
-                return gapPeriods;
-
-                void AddElementToGapsPeriodCollection(DateTime? startDateForProvidedInterval, int gapDays)
-                {
-                    if (gapDays == 1)
-                    {
-                        gapPeriods.Add((startDateForProvidedInterval.Value.AddDays(-1),
-                        startDateForProvidedInterval.Value));
-                    }
-                    else
-                    {
-                        gapPeriods.Add((startDateForProvidedInterval.Value,
-                        startDateForProvidedInterval.Value.AddDays(gapDays)));
-                    }
-
-                    startDateForProvidedInterval = null;
-                    gapDays = 0;
-                }
-            }
-
-            IEnumerable<GetNbpExchangeRateQuery> ConvertGapPeriodsToNbpExchangeRateQueries
-            (List<(DateTime startDate, DateTime endDate)> gapPeriods)
-            {
-                if (gapPeriods != null)
-                {
-                    return gapPeriods.Select(gapPeriod => new GetNbpExchangeRateQuery(
+                    return gapDays.Select(gapPeriod => new GetNbpExchangeRateDailyQuery(
                         request.CurrencyIsoCode,
-                        gapPeriod.startDate.ToString("yyyy-MM-dd"),
-                        gapPeriod.endDate.ToString("yyyy-MM-dd")
+                        gapPeriod.Date.ToString("yyyy-MM-dd")
                     ));
                 }
 
-                return Enumerable.Empty<GetNbpExchangeRateQuery>();
+                return Enumerable.Empty<GetNbpExchangeRateDailyQuery>();
             }
 
             async Task SaveNbpExchangeRateModels(GetNbpExchangeRateModel nbpExchangeRateModel)
             {
-                if (nbpExchangeRateModel != null)
+                if (nbpExchangeRateModel != null
+                    && nbpExchangeRateModel.Rates != null
+                    && nbpExchangeRateModel.Rates.Any())
                 {
                     foreach (var dailyExchangeRateFromNbp in nbpExchangeRateModel.Rates)
                     {
