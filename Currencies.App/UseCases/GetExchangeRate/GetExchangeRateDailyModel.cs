@@ -7,6 +7,12 @@ namespace Currencies.App.UseCases.GetExchangeRate
     /// </summary>
     public class GetExchangeRateDailyModel
     {
+        public GetExchangeRateDailyModel(DateTime date, decimal averageExchangeDate)
+        {
+            Date = date;
+            AverageExchangeRate = averageExchangeDate;
+        }
+
         /// <summary>
         /// UTC Date
         /// </summary>

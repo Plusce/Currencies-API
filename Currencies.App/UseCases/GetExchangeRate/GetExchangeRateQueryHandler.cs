@@ -22,11 +22,13 @@ namespace Currencies.App.UseCases.GetExchangeRate
 
         public async Task<GetExchangeRateModel> Handle(GetExchangeRateQuery request, CancellationToken cancellationToken)
         {
-            await FillGapsInMissingDailyExchangeRates(GetDatesBetweenStartAndEndDateDividedByDay());
+            var datesBetweenStartAndEndDateDividedByDay = GetDatesBetweenStartAndEndDateDividedByDay();
 
-            var getExchangeRateModel = new GetExchangeRateModel();
+            await FillGapsInMissingDailyExchangeRates(datesBetweenStartAndEndDateDividedByDay);
 
-            return null;
+            var model = await CreateExchangeRateModel(datesBetweenStartAndEndDateDividedByDay);
+
+            return model;
 
             #region Inner methods
 
@@ -72,6 +74,34 @@ namespace Currencies.App.UseCases.GetExchangeRate
                 return gapDaysCollection;
             }
 
+            async Task<GetExchangeRateModel> CreateExchangeRateModel(List<DateTime> datesBetween)
+            {
+                var dailyExchangeRatesDto = await GetDailyExchangeRatesDto(datesBetween);
+
+                var isoCurrencyCode = request.CurrencyIsoCode.ToUpper();
+                
+                var exchangeRates = dailyExchangeRatesDto.Select(rate => rate.ExchangeRate);
+                var averageRatesForProvidedPeriod = exchangeRates.Sum() / exchangeRates.Count();
+
+                var dailyExchangeRates = dailyExchangeRatesDto
+                    .Select(dto => new GetExchangeRateDailyModel(dto.Date, dto.ExchangeRate))
+                    .ToList();
+
+                var getExchangeRateModel = new GetExchangeRateModel(dailyExchangeRates, averageRatesForProvidedPeriod, isoCurrencyCode);
+
+                return getExchangeRateModel;
+            }
+
+            async Task<List<DailyExchangeRateDto>> GetDailyExchangeRatesDto(List<DateTime> datesBetween)
+            {
+                return await databaseContext
+                    .DailyExchangeRate
+                    .Where(exchangeRate =>
+                        datesBetween.Any(dateBetween => EF.Functions.DateDiffDay(exchangeRate.Date, dateBetween.Date) == 0))
+                    .Select(exchangeRate => new DailyExchangeRateDto(exchangeRate.Date, exchangeRate.ExchangeRate))
+                    .ToListAsync(cancellationToken);
+            }
+
             IEnumerable<GetNbpExchangeRateDailyQuery> ConvertGapPeriodsToNbpExchangeRateQueries
             (List<DateTime> gapDays)
             {
@@ -88,9 +118,7 @@ namespace Currencies.App.UseCases.GetExchangeRate
 
             async Task SaveNbpExchangeRateModels(GetNbpExchangeRateModel nbpExchangeRateModel)
             {
-                if (nbpExchangeRateModel != null
-                    && nbpExchangeRateModel.Rates != null
-                    && nbpExchangeRateModel.Rates.Any())
+                if (nbpExchangeRateModel != null && nbpExchangeRateModel.NotEmpty())
                 {
                     foreach (var dailyExchangeRateFromNbp in nbpExchangeRateModel.Rates)
                     {
@@ -109,6 +137,19 @@ namespace Currencies.App.UseCases.GetExchangeRate
             }
 
             #endregion
+        }
+
+        private class DailyExchangeRateDto
+        {
+            public DailyExchangeRateDto(DateTime date, decimal exchangeRate)
+            {
+                Date = date;
+                ExchangeRate = exchangeRate;
+            }
+            
+            public DateTime Date { get; set; }
+
+            public decimal ExchangeRate { get; set; }
         }
     }
 }
