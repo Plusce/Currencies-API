@@ -1,6 +1,7 @@
 ﻿using Currencies.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace Currencies.DataAccess.Configurations
 {
@@ -20,6 +21,19 @@ namespace Currencies.DataAccess.Configurations
             builder.Property(b => b.IsoCode)
                 .HasMaxLength(3)
                 .IsRequired();
+
+            builder.HasData(
+                new Currency
+                {
+                    Id = Guid.NewGuid(),
+                    IsoCode = "EUR"
+                },
+                new Currency
+                {
+                    Id = Guid.NewGuid(),
+                    IsoCode = "USD"
+                }
+            );
         }
     }
 }
