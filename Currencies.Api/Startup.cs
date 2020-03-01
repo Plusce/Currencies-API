@@ -1,8 +1,10 @@
 using System.Reflection;
 using Currencies.App.UseCases.GetExchangeRate;
+using Currencies.DataAccess;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,6 +32,9 @@ namespace Currencies.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Currencies API", Version = "v1" });
             });
+
+            var connectionString = Configuration.GetValue<string>("ConnectionString");
+            services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(connectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

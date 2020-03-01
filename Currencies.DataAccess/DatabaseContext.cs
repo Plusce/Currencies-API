@@ -1,4 +1,5 @@
-﻿using Currencies.Domain.Entities;
+﻿using Currencies.DataAccess.Configurations;
+using Currencies.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Currencies.DataAccess
@@ -9,10 +10,14 @@ namespace Currencies.DataAccess
 
         public DbSet<DailyExchangeRate> DailyExchangeRate { get; set; }
 
+        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+        {
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            //modelBuilder.ApplyConfigurationsFromAssembly()
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(CurrencyEntityTypeConfiguration).Assembly);
         }
     }
 }

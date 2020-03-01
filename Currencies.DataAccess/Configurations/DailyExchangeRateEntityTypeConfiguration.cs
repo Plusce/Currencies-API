@@ -27,6 +27,10 @@ namespace Currencies.DataAccess.Configurations
 
             builder.Property(b => b.Date)
                 .IsRequired();
+
+            builder.Property(b => b.ExchangeRate)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
         }
     }
 }
