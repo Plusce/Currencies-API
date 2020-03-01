@@ -19,7 +19,8 @@ namespace Currencies.Api.Controllers
         }
 
         /// <summary>
-        /// Gets exchange rate of specified currency for chosen period in Poland. Currently available exchange rates are: USD, EUR.
+        /// Gets exchange rate of specified currency during the period (where the base currency for which is the exchange rate calculated is PLN).
+        /// Currently available exchange rates are: USD, EUR.
         /// </summary>
         /// <param name="currencyIsoCode">ISO-4217 currency code</param>
         /// <param name="startDate">Start date. Should be provided in YYYY-MM-DD format (for example "2012-01-31").</param>
