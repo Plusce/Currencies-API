@@ -49,7 +49,7 @@ namespace Currencies.App.UseCases.GetExchangeRate
                     if (!isDateCorrect)
                     {
                         customContext.AddFailure(nameof(GetExchangeRateQuery.EndDate),
-                               "Provided end date is not correct. Proper date format should be \"YYYY-MM-DD\" (for example \"2012-01-31\".");
+                               $"Provided end date is not correct. Proper date format should be \"YYYY-MM-DD\" (for example \"2012-01-31\".");
                     }
                 });
         }

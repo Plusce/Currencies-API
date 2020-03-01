@@ -33,8 +33,12 @@ namespace Currencies.Api.Infrastructure.ErrorHandling
         public static ApiErrorResult CreateFrom(ValidationException ex)
         {
             var errors = ex.ValidationErrors
-                ?.Select(error => new ApiError(error.ErrorMessage))
+                ?.Select(error =>
+                new ApiError(
+                    error.ErrorMessage,
+                    new Dictionary<string, string> { { "FieldName: ", error.FieldName } }))
                 .ToArray();
+
             ApiErrorResult result = new ApiErrorResult(errors);
             return result;
         }
