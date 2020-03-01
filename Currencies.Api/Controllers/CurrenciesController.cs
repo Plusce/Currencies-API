@@ -19,7 +19,8 @@ namespace Currencies.Api.Controllers
         }
 
         /// <summary>
-        /// Gets exchange rate of specified currency during the period (where the base currency for which is the exchange rate calculated is PLN).
+        /// Gets exchange rate of specified currency for the provided time interval
+        /// (where the base currency for which the exchange rate is calculated is PLN).
         /// Currently available exchange rates are: USD, EUR.
         /// </summary>
         /// <param name="currencyIsoCode">ISO-4217 currency code</param>

@@ -1,4 +1,7 @@
+using System;
+using System.IO;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using Currencies.App.UseCases.GetExchangeRate;
 using Currencies.DataAccess;
 using MediatR;
@@ -24,13 +27,16 @@ namespace Currencies.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(options =>
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
             services.AddMediatR(Assembly.GetAssembly(typeof(GetExchangeRateQueryHandler)));
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Currencies API", Version = "v1" });
+                c.IncludeXmlComments(GetXmlDocumentationFilePath(Assembly.GetExecutingAssembly()));
+                c.IncludeXmlComments(GetXmlDocumentationFilePath(typeof(GetExchangeRateQuery).Assembly));
             });
 
             var connectionString = Configuration.GetValue<string>("ConnectionString");
@@ -62,6 +68,14 @@ namespace Currencies.Api
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private string GetXmlDocumentationFilePath(Assembly assembly)
+        {
+            var assemblyName = assembly.GetName().Name;
+            var xmlDocumentationFileName = $"{assemblyName}.XML";
+            var xmlDocumentationFilePath = Path.Combine(AppContext.BaseDirectory, xmlDocumentationFileName);
+            return xmlDocumentationFilePath;
         }
     }
 }

@@ -3,18 +3,19 @@
 namespace Currencies.App.UseCases.GetExchangeRate
 {
     /// <summary>
-    /// Model containing daily exchange rates and average exchange rate for specified period and currency
+    /// Model contains currency ISO code, daily exchange rates and average exchange rate for the given time interval
     /// (where the base currency for which is the exchange rate calculated is PLN).
     /// </summary>
     public class GetExchangeRateModel
     {
         /// <summary>
-        /// Daily exchange rates for specified period.
+        /// Daily exchange rates for the given time period.
         /// </summary>
         public IList<GetExchangeRateDailyModel> DailyExchangeRates { get; set; }
 
         /// <summary>
-        /// Average exchange rate during the specified period
+        /// Average exchange rate for the given time period.
+        /// To obtain the time interval, calculate the difference between the earliest and the latest dates.
         /// </summary>
         public decimal AverageExchangeRate { get; set; }
 

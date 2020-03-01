@@ -13,7 +13,7 @@ namespace Currencies.App.UseCases.GetExchangeRate
         public DateTime Date { get; set; }
 
         /// <summary>
-        /// Average exchange rate for the day
+        /// Average exchange rate for the given day
         /// </summary>
         public decimal AverageExchangeRate { get; set; }
     }
