@@ -33,14 +33,20 @@ namespace Currencies.Api.Infrastructure.ErrorHandling
         public static ApiErrorResult CreateFrom(ValidationException ex)
         {
             var errors = ex.ValidationErrors
-                ?.Select(error =>
-                new ApiError(
-                    error.ErrorMessage,
-                    new Dictionary<string, string> { { "FieldName: ", error.FieldName } }))
+                ?.Select(MapValidationErrorToApiError)
                 .ToArray();
 
             ApiErrorResult result = new ApiErrorResult(errors);
             return result;
+
+            ApiError MapValidationErrorToApiError(ValidationError validationError)
+            {
+                var arguments = validationError != null
+                    ? new Dictionary<string, string> { { "FieldName: ", validationError.FieldName } }
+                    : null;
+
+                return new ApiError(validationError.ErrorMessage, arguments);
+            }
         }
 
         public string ToJsonString()
