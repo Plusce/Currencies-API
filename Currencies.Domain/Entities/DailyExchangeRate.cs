@@ -12,6 +12,6 @@ namespace Currencies.Domain.Entities
         public decimal ExchangeRate { get; set; }
 
         public virtual Currency Currency { get; set; }
-        public string CurrencyCode { get; set; }
+        public Guid CurrencyId { get; set; }
     }
 }
