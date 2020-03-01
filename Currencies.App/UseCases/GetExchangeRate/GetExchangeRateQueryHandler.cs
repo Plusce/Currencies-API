@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Currencies.App.ExternalClients.NbpClient;
+using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,9 +7,11 @@ namespace Currencies.App.UseCases.GetExchangeRate
 {
     public class GetExchangeRateQueryHandler : IRequestHandler<GetExchangeRateQuery, GetExchangeRateModel>
     {
-        public Task<GetExchangeRateModel> Handle(GetExchangeRateQuery request, CancellationToken cancellationToken)
+        public async Task<GetExchangeRateModel> Handle(GetExchangeRateQuery request, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            var data = await NbpClient.GetNbpExchangeRateModel(request, cancellationToken);
+
+            return null;
         }
     }
 }

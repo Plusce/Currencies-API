@@ -29,9 +29,9 @@ namespace Currencies.Api.Controllers
         [HttpGet("{currencyIsoCode}/{startDate}/{endDate}")]
         public async Task<GetExchangeRateModel> GetExchangeRate([FromServices] IMediator mediator,
             CancellationToken cancellationToken,
-            string currencyIsoCode,
-            string startDate,
-            string endDate)
+            string currencyIsoCode = "USD",
+            string startDate = "2012-01-01",
+            string endDate = "2012-01-31")
         {
             var getExchangeRateQuery = new GetExchangeRateQuery(currencyIsoCode, startDate, endDate);
             return await mediator.Send(getExchangeRateQuery, cancellationToken);
