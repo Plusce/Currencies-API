@@ -25,7 +25,7 @@ namespace Currencies.Api.Controllers
         /// <param name="startDate">Start date. Should be provided in YYYY-MM-DD format (for example "2012-01-31").</param>
         /// <param name="endDate">End date. Should be provided in YYYY-MM-DD format (for example "2012-01-31").</param>
         /// <returns>Model containing data with exchange rates and average value for specified period.</returns>
-        [HttpGet("{currencyIsoCode}/{dateFrom}/{dateTo}")]
+        [HttpGet("{currencyIsoCode}/{startDate}/{endDate}")]
         public async Task<GetExchangeRateModel> GetExchangeRate([FromServices] IMediator mediator,
             CancellationToken cancellationToken,
             string currencyIsoCode,
