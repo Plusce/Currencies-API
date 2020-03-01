@@ -22,7 +22,11 @@ namespace Currencies.DataAccess.Configurations
                 .HasMaxLength(3)
                 .IsRequired();
 
-            builder.HasData(
+            DefineSeed();
+            
+            void DefineSeed()
+            {
+                builder.HasData(
                 new Currency
                 {
                     Id = Guid.NewGuid(),
@@ -34,6 +38,7 @@ namespace Currencies.DataAccess.Configurations
                     IsoCode = "USD"
                 }
             );
+            }
         }
     }
 }

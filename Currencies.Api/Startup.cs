@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Autofac;
+using Currencies.Api.Infrastructure.DependencyInjection;
 using Currencies.App.UseCases.GetExchangeRate;
 using Currencies.DataAccess;
 using MediatR;
@@ -41,6 +43,11 @@ namespace Currencies.Api
 
             var connectionString = Configuration.GetValue<string>("ConnectionString");
             services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(connectionString));
+        }
+
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            builder.RegisterModule<AutofacModule>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
