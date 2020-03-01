@@ -32,7 +32,7 @@ namespace Currencies.Api.Controllers
             CancellationToken cancellationToken,
             string currencyIsoCode = "USD",
             string startDate = "2012-01-01",
-            string endDate = "2012-01-31")
+            string endDate = "2012-01-10")
         {
             var getExchangeRateQuery = new GetExchangeRateQuery(currencyIsoCode, startDate, endDate);
             return await mediator.Send(getExchangeRateQuery, cancellationToken);

@@ -1,4 +1,6 @@
 ﻿using Currencies.App.UseCases.GetExchangeRate;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
@@ -11,7 +13,30 @@ namespace Currencies.App.ExternalClients.NbpClient
         private const string baseUrl = "http://api.nbp.pl/api/exchangerates/rates/a";
         private static readonly HttpClient client = new HttpClient();
 
-        internal static async Task<GetNbpExchangeRateModel> GetNbpExchangeRateModel(GetExchangeRateQuery query,
+        /// <summary>
+        /// Makes multiple queries for different time intervals and join result into single model.
+        /// </summary>
+        /// <param name="queries">Multiple queries</param>
+        /// <returns>NBP exchange rate model</returns>
+        internal static async Task<GetNbpExchangeRateModel> GetNbpExchangeRateModels(IEnumerable<GetNbpExchangeRateQuery> queries,
+            CancellationToken cancellationToken)
+        {
+            var getNbpExchangeRateModels = new List<GetNbpExchangeRateModel>();
+
+            foreach(var query in queries)
+            {
+                getNbpExchangeRateModels.Add(await GetNbpExchangeRateModel(query, cancellationToken));
+            }
+
+            return new GetNbpExchangeRateModel { Rates = getNbpExchangeRateModels.SelectMany(model => model.Rates).Distinct() };
+        }
+        /// <summary>
+        /// Makes query to NBP Api to obtain exchange rates for selected time interval and currency.
+        /// </summary>
+        /// <param name="query">Single query</param>
+        /// <returns>NBP exchange rate model</returns>
+
+        internal static async Task<GetNbpExchangeRateModel> GetNbpExchangeRateModel(GetNbpExchangeRateQuery query,
             CancellationToken cancellationToken)
         {
             var jsonContent = await MakeRequest();
