@@ -6,6 +6,6 @@ namespace Currencies.App.ExternalClients.NbpClient
     {
         public string code { get; set; }
 
-        public IList<GetNbpExchangeRateDailyModel> rates { get; set; }
+        public IList<GetNbpExchangeRateDailyModel> Rates { get; set; }
     }
 }

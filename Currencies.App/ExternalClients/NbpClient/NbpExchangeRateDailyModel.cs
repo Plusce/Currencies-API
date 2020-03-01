@@ -2,10 +2,10 @@
 {
     internal class GetNbpExchangeRateDailyModel
     {
-        public string no { get; set; }
+        public string No { get; set; }
 
-        public string effectiveDate { get; set; }
+        public string EffectiveDate { get; set; }
 
-        public decimal mid { get; set; }
+        public decimal Mid { get; set; }
     }
 }

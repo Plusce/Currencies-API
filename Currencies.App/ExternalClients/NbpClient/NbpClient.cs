@@ -16,12 +16,31 @@ namespace Currencies.App.ExternalClients.NbpClient
         internal static async Task<GetNbpExchangeRateModel> GetNbpExchangeRateModel(GetExchangeRateQuery query,
             CancellationToken cancellationToken)
         {
-            var url = $"{baseUrl}/{query.CurrencyIsoCode}/{query.StartDate}/{query.EndDate}";
-            var nbpResponse = await client.GetAsync(url, cancellationToken);
-            var contents = await nbpResponse.Content.ReadAsStringAsync();
+            var jsonContent = await MakeRequest();
+            return DeserializeModel(jsonContent);
 
-            var getNbpExchangeRateModel = JsonSerializer.Deserialize<GetNbpExchangeRateModel>(contents);
-            return getNbpExchangeRateModel;
+            #region Inner methods
+
+            string PrepareUrl()
+            {
+                return $"{baseUrl}/{query.CurrencyIsoCode}/{query.StartDate}/{query.EndDate}";
+            }
+
+            async Task<string> MakeRequest()
+            {
+                var url = PrepareUrl();
+                var response = await client.GetAsync(url, cancellationToken);
+
+                return await response.Content.ReadAsStringAsync();
+            }
+
+            GetNbpExchangeRateModel DeserializeModel(string jsonContent)
+            {
+                var jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                return JsonSerializer.Deserialize<GetNbpExchangeRateModel>(jsonContent, jsonSerializerOptions);
+            }
+
+            #endregion
         }
     }
 }
