@@ -97,7 +97,7 @@ namespace Currencies.App.UseCases.GetExchangeRate
                 return await databaseContext
                     .DailyExchangeRate
                     .Where(exchangeRate =>
-                        datesBetween.Any(dateBetween => EF.Functions.DateDiffDay(exchangeRate.Date, dateBetween.Date) == 0))
+                        datesBetween.Any(dateBetween => dateBetween == exchangeRate.Date))
                     .Select(exchangeRate => new DailyExchangeRateDto(exchangeRate.Date, exchangeRate.ExchangeRate))
                     .ToListAsync(cancellationToken);
             }
