@@ -19,7 +19,7 @@ namespace Currencies.Api.Controllers
         }
 
         /// <summary>
-        /// Gets exchange rate of specified currency for the provided time interval
+        /// Gets exchange rates of specified currency for the provided time interval and calculated average value
         /// (where the base currency for which the exchange rate is calculated is PLN).
         /// Currently available exchange rates are: USD, EUR.
         /// </summary>
@@ -28,7 +28,7 @@ namespace Currencies.Api.Controllers
         /// <param name="endDate">End date. Should be provided in YYYY-MM-DD format (for example "2012-01-31").</param>
         /// <returns>Model containing data with exchange rates and average value for specified period.</returns>
         [HttpGet("{currencyIsoCode}/{startDate}/{endDate}")]
-        public async Task<GetExchangeRateModel> GetExchangeRate([FromServices] IMediator mediator,
+        public async Task<GetExchangeRateModel> GetExchangeRates([FromServices] IMediator mediator,
             CancellationToken cancellationToken,
             string currencyIsoCode = "USD",
             string startDate = "2012-01-01",
