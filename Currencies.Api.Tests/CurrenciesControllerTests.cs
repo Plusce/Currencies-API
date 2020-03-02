@@ -1,7 +1,6 @@
 ﻿using Currencies.Api.Infrastructure.ErrorHandling;
 using Currencies.App.UseCases.GetExchangeRate;
 using FluentAssertions;
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -20,7 +19,7 @@ namespace Currencies.Api.Tests
         }
 
         [Fact]
-        public async Task GetCurrencies_WhereStartDateIsGreaterThanEnd_ShouldBeBadRequestError()
+        public async Task GetExchangeRates_WhereTheStartDateIsGreaterThanTheEnd_ShouldBeBadRequestError()
         {
             // Arrange
             var url = Arrange_Url("2020-01-10", "2020-01-05", "USD");
@@ -37,6 +36,84 @@ namespace Currencies.Api.Tests
 
             apiError.Arguments.Should().ContainKey("FieldName: ");
             apiError.Arguments.Should().ContainValue(nameof(GetExchangeRateQuery.StartDate));
+        }
+
+        [Fact]
+        public async Task GetExchangeRates_WhereTheCurrencyIsNotCorrect_ShouldBeBadRequestError()
+        {
+            // Arrange
+            var url = Arrange_Url("2020-01-05", "2020-01-10", "CHF");
+
+            // Act
+            var response = await client.GetAsync(url);
+            var deserializedError = await DeserializeModel<ApiErrorResult>(response.Content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var apiError = deserializedError.Errors.Should().ContainSingle().Which;
+            apiError.Message.Should().StartWith("Provided currency ISO code is not correct.");
+
+            apiError.Arguments.Should().ContainKey("FieldName: ");
+            apiError.Arguments.Should().ContainValue(nameof(GetExchangeRateQuery.CurrencyIsoCode));
+        }
+
+        [Fact]
+        public async Task GetExchangeRates_WhereTheStartDateIsNotValid_ShouldBeBadRequestError()
+        {
+            // Arrange
+            var url = Arrange_Url("2020-01-32", "2020-01-10", "USD");
+
+            // Act
+            var response = await client.GetAsync(url);
+            var deserializedError = await DeserializeModel<ApiErrorResult>(response.Content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var apiError = deserializedError.Errors.Should().ContainSingle().Which;
+            apiError.Message.Should().StartWith("Provided date is not correct.");
+
+            apiError.Arguments.Should().ContainKey("FieldName: ");
+            apiError.Arguments.Should().ContainValue(nameof(GetExchangeRateQuery.StartDate));
+        }
+
+        [Fact]
+        public async Task GetExchangeRates_WhereTheEndDateIsNotValid_ShouldBeBadRequestError()
+        {
+            // Arrange
+            var url = Arrange_Url("2020-01-05", "2020-01-", "USD");
+
+            // Act
+            var response = await client.GetAsync(url);
+            var deserializedError = await DeserializeModel<ApiErrorResult>(response.Content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var apiError = deserializedError.Errors.Should().ContainSingle().Which;
+            apiError.Message.Should().StartWith("Provided date is not correct.");
+
+            apiError.Arguments.Should().ContainKey("FieldName: ");
+            apiError.Arguments.Should().ContainValue(nameof(GetExchangeRateQuery.EndDate));
+        }
+
+        [Fact]
+        public async Task GetExchangeRates_WhereTheIntervalTimeBetweenStartAndEndDateIsBiggerThanAllowed_ShouldBeBadRequestError()
+        {
+            // Arrange
+            var url = Arrange_Url("2018-01-05", "2020-06-05", "USD");
+
+            // Act
+            var response = await client.GetAsync(url);
+            var deserializedError = await DeserializeModel<ApiErrorResult>(response.Content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var apiError = deserializedError.Errors.Should().ContainSingle().Which;
+            apiError.Message.Should().StartWith("Maximum difference of days between start and the end date cannot be");
+            apiError.Arguments.Should().BeNull();
         }
 
         private async Task<T> DeserializeModel<T>(HttpContent content)
