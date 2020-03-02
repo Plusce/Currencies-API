@@ -1,6 +1,6 @@
 ﻿namespace Currencies.App.ExternalClients.NbpClient
 {
-    internal class GetNbpExchangeRateDailyModel
+    internal class NbpExchangeRateDailyModel
     {
         public string No { get; set; }
 

@@ -1,8 +1,8 @@
 ﻿namespace Currencies.App.ExternalClients.NbpClient
 {
-    public class GetNbpExchangeRateDailyQuery
+    public class NbpExchangeRateDailyQuery
     {
-        public GetNbpExchangeRateDailyQuery(string currencyIsoCode, string date)
+        public NbpExchangeRateDailyQuery(string currencyIsoCode, string date)
         {
             CurrencyIsoCode = currencyIsoCode;
             Date = date;

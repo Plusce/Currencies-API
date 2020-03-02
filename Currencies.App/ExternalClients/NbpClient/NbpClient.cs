@@ -17,10 +17,10 @@ namespace Currencies.App.ExternalClients.NbpClient
         /// </summary>
         /// <param name="queries">Multiple queries</param>
         /// <returns>NBP exchange rate model</returns>
-        internal static async Task<GetNbpExchangeRateModel> GetNbpExchangeRateModels(IEnumerable<GetNbpExchangeRateDailyQuery> queries,
+        internal static async Task<NbpExchangeRateModel> GetNbpExchangeRateModels(IEnumerable<NbpExchangeRateDailyQuery> queries,
             CancellationToken cancellationToken)
         {
-            var getNbpExchangeRateModels = new List<GetNbpExchangeRateModel>();
+            var getNbpExchangeRateModels = new List<NbpExchangeRateModel>();
 
             foreach (var query in queries)
             {
@@ -32,17 +32,17 @@ namespace Currencies.App.ExternalClients.NbpClient
                 }
             }
 
-            return new GetNbpExchangeRateModel { Rates = getNbpExchangeRateModels.SelectMany(model => model.Rates).Distinct().ToList() };
+            return new NbpExchangeRateModel { Rates = getNbpExchangeRateModels.SelectMany(model => model.Rates).Distinct().ToList() };
         }
 
-        internal static async Task<GetNbpExchangeRateModel> GetNbpExchangeDailyRateModel(GetNbpExchangeRateDailyQuery query,
+        internal static async Task<NbpExchangeRateModel> GetNbpExchangeDailyRateModel(NbpExchangeRateDailyQuery query,
             CancellationToken cancellationToken)
         {
             var jsonContent = await MakeRequest();
 
             if (string.IsNullOrWhiteSpace(jsonContent))
             {
-                return new GetNbpExchangeRateModel();
+                return new NbpExchangeRateModel();
             }
 
             return DeserializeModel(jsonContent);
@@ -67,10 +67,10 @@ namespace Currencies.App.ExternalClients.NbpClient
                 return await response.Content.ReadAsStringAsync();
             }
 
-            GetNbpExchangeRateModel DeserializeModel(string jsonContent)
+            NbpExchangeRateModel DeserializeModel(string jsonContent)
             {
                 var jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                return JsonSerializer.Deserialize<GetNbpExchangeRateModel>(jsonContent, jsonSerializerOptions);
+                return JsonSerializer.Deserialize<NbpExchangeRateModel>(jsonContent, jsonSerializerOptions);
             }
 
             #endregion

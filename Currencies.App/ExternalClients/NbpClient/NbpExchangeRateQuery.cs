@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Currencies.App.ExternalClients.NbpClient
+﻿namespace Currencies.App.ExternalClients.NbpClient
 {
-    public class GetNbpExchangeRateQuery
+    public class NbpExchangeRateQuery
     {
-        public GetNbpExchangeRateQuery(string currencyIsoCode, string startDate, string endDate)
+        public NbpExchangeRateQuery(string currencyIsoCode, string startDate, string endDate)
         {
             CurrencyIsoCode = currencyIsoCode;
             StartDate = startDate;
