@@ -18,7 +18,7 @@ namespace Currencies.Api.Tests
                     .AddEntityFrameworkInMemoryDatabase()
                     .BuildServiceProvider();
 
-                // Add a database context (AppDbContext) using an in-memory database for testing.
+                // Add a database context using an in-memory database for testing.
                 services.AddDbContext<DatabaseContext>(options =>
                 {
                     options.UseInMemoryDatabase("InMemoryAppDb");

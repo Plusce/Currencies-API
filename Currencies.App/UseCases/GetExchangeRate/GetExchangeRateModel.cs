@@ -8,6 +8,11 @@ namespace Currencies.App.UseCases.GetExchangeRate
     /// </summary>
     public class GetExchangeRateModel
     {
+        public GetExchangeRateModel()
+        {
+
+        }
+
         public GetExchangeRateModel(IList<GetExchangeRateDailyModel> dailyExchangeRates, decimal averageExchangeRate, string isoCurrencyCode)
         {
             DailyExchangeRates = dailyExchangeRates;

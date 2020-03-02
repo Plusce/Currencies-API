@@ -102,21 +102,21 @@ namespace Currencies.App.UseCases.GetExchangeRate
                     .ToListAsync(cancellationToken);
             }
 
-            IEnumerable<GetNbpExchangeRateDailyQuery> ConvertGapPeriodsToNbpExchangeRateQueries
+            IEnumerable<NbpExchangeRateDailyQuery> ConvertGapPeriodsToNbpExchangeRateQueries
             (List<DateTime> gapDays)
             {
                 if (gapDays != null)
                 {
-                    return gapDays.Select(gapPeriod => new GetNbpExchangeRateDailyQuery(
+                    return gapDays.Select(gapPeriod => new NbpExchangeRateDailyQuery(
                         request.CurrencyIsoCode,
                         gapPeriod.Date.ToString("yyyy-MM-dd")
                     ));
                 }
 
-                return Enumerable.Empty<GetNbpExchangeRateDailyQuery>();
+                return Enumerable.Empty<NbpExchangeRateDailyQuery>();
             }
 
-            async Task SaveNbpExchangeRateModels(GetNbpExchangeRateModel nbpExchangeRateModel)
+            async Task SaveNbpExchangeRateModels(NbpExchangeRateModel nbpExchangeRateModel)
             {
                 if (nbpExchangeRateModel != null && nbpExchangeRateModel.NotEmpty())
                 {

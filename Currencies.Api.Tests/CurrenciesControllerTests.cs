@@ -1,6 +1,8 @@
 ﻿using Currencies.Api.Infrastructure.ErrorHandling;
 using Currencies.App.UseCases.GetExchangeRate;
+using Currencies.DataAccess;
 using FluentAssertions;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -11,7 +13,7 @@ namespace Currencies.Api.Tests
 {
     public class CurrenciesControllerTests : IClassFixture<CustomWebApplicationFactory<Startup>>
     {
-        protected readonly HttpClient client;
+        private readonly HttpClient client;
 
         public CurrenciesControllerTests(CustomWebApplicationFactory<Startup> factory)
         {
@@ -132,6 +134,25 @@ namespace Currencies.Api.Tests
             var apiError = deserializedError.Errors.Should().ContainSingle().Which;
             apiError.Arguments.Should().ContainKey("FieldName: ");
             apiError.Arguments.Should().ContainValue(nameof(GetExchangeRateQuery.StartDate));
+        }
+
+        [Fact]
+        public async Task GetExchangeRates_ForSamplePeriod_ShouldBeTheSameRatesCountReturnedAndSavedInTheDatabase()
+        {
+            // Arrange
+            var url = Arrange_Url("2020-01-01", "2020-01-08", "USD");
+
+            // Act
+            var response = await client.GetAsync(url);
+            var exchangeRateModel = await DeserializeModel<GetExchangeRateModel>(response.Content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            using (var context = DatabaseContextFactory.GetInMemoryDatabaseContext())
+            {
+                context.DailyExchangeRate.ToList().Count.Should().Be(exchangeRateModel.DailyExchangeRates.Count);
+            }
         }
 
         private async Task<T> DeserializeModel<T>(HttpContent content)
