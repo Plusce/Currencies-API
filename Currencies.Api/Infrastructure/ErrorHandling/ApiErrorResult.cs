@@ -9,7 +9,7 @@ namespace Currencies.Api.Infrastructure.ErrorHandling
         /// <summary>
         /// List of errors
         /// </summary>
-        public List<ApiError> Errors { get; } = new List<ApiError>();
+        public List<ApiError> Errors { get; set; } = new List<ApiError>();
 
         public ApiErrorResult()
         {
