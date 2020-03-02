@@ -37,18 +37,25 @@ namespace Currencies.App.UseCases.GetExchangeRate
                 .Custom((endDate, customContext) =>
                     ProvidedDateShouldHaveProperFormat(endDate, nameof(GetExchangeRateQuery.EndDate), customContext));
 
-            When(query => IsProvidedDateCorrect(query.StartDate) && IsProvidedDateCorrect(query.EndDate), () => 
+            When(query => IsProvidedDateFormatCorrect(query.StartDate) && IsProvidedDateFormatCorrect(query.EndDate), () => 
             {
                 RuleFor(query => query).Custom((query, customContext) =>
                 {
                     var startDateAfterFormat = DateTime.Parse(query.StartDate);
                     var endDateAfterFormat = DateTime.Parse(query.EndDate);
 
-                    if(startDateAfterFormat > endDateAfterFormat)
+                    if(startDateAfterFormat.CompareTo(DateTime.UtcNow) > 0)
+                    {
+                        customContext.AddFailure(nameof(GetExchangeRateQuery.StartDate),
+                             $"Provided start date cannot be greater than the current date.");
+                    }
+
+                    if (startDateAfterFormat > endDateAfterFormat)
                     {
                         customContext.AddFailure(nameof(GetExchangeRateQuery.StartDate),
                             $"Provided start date is greater than the end date.");
                     }
+
                     else
                     {
                         TimeSpan difference = endDateAfterFormat - startDateAfterFormat;
@@ -65,14 +72,14 @@ namespace Currencies.App.UseCases.GetExchangeRate
 
         private void ProvidedDateShouldHaveProperFormat(string date, string propertyName, CustomContext customContext)
         {
-            if (!IsProvidedDateCorrect(date))
+            if (!IsProvidedDateFormatCorrect(date))
             {
                 customContext.AddFailure(propertyName,
                     $"Provided date is not correct. Sample proper date format should be \"YYYY-MM-DD\" (for example \"2012-01-31\".");
             }
         }
 
-        private bool IsProvidedDateCorrect(string date)
+        private bool IsProvidedDateFormatCorrect(string date)
         {
             var dividedDate = date?.Split("-");
 
@@ -82,7 +89,7 @@ namespace Currencies.App.UseCases.GetExchangeRate
             }
 
             var yearsResult = int.TryParse(dividedDate[0], out int years);
-            if(!yearsResult || years < 1900 || years > DateTime.UtcNow.Year)
+            if(!yearsResult || dividedDate[0].Length != 4)
             {
                 return false;
             }

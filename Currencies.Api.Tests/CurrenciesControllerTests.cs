@@ -116,6 +116,24 @@ namespace Currencies.Api.Tests
             apiError.Arguments.Should().BeNull();
         }
 
+        [Fact]
+        public async Task GetExchangeRates_WhereTheStartDateIsGreaterThanTheCurrentDate_ShouldBeBadRequestError()
+        {
+            // Arrange
+            var url = Arrange_Url("2030-01-05", "2030-02-05", "USD");
+
+            // Act
+            var response = await client.GetAsync(url);
+            var deserializedError = await DeserializeModel<ApiErrorResult>(response.Content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var apiError = deserializedError.Errors.Should().ContainSingle().Which;
+            apiError.Arguments.Should().ContainKey("FieldName: ");
+            apiError.Arguments.Should().ContainValue(nameof(GetExchangeRateQuery.StartDate));
+        }
+
         private async Task<T> DeserializeModel<T>(HttpContent content)
         {
             var jsonString = await content.ReadAsStringAsync();
